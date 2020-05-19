@@ -39,22 +39,29 @@ class Ui_Dialog(object):
         self.buttonBox.rejected.connect(Dialog.reject)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
+
     def accept(self):
         msgBox = QMessageBox()
         courseName = self.lineEdit.text()
-        path = os.getcwd()+os.sep+"courses/"+courseName
 
-        if not os.path.exists(path):
-            os.makedirs(path)
-            msgBox.setIcon(QMessageBox.Information)
-            msgBox.setText("The folder is successfully created")
-            msgBox.setWindowTitle("Success")
+        if courseName is not "":
+            path = os.getcwd()+os.sep+"courses/"+courseName
+
+            if not os.path.exists(path):
+                os.makedirs(path)
+                msgBox.setIcon(QMessageBox.Information)
+                msgBox.setText("The folder is successfully created")
+                msgBox.setWindowTitle("Success")
+            else:
+                msgBox.setIcon(QMessageBox.Critical)
+                msgBox.setText("The folder is already exists")
+                msgBox.setWindowTitle("Warning")
+            msgBox.exec()
         else:
             msgBox.setIcon(QMessageBox.Critical)
-            msgBox.setText("The folder is already exists")
+            msgBox.setText("Please enter proper filename")
             msgBox.setWindowTitle("Warning")
-        msgBox.exec()
-        
+            msgBox.exec()
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
