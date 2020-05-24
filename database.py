@@ -6,10 +6,21 @@ import sqlite3 as sqlite
 class database():
     def __init__(self):
         super(database,self).__init__()
-        self.connection = sqlite.connect('/home/fatih/Desktop/Python/SoftwareDesingApplicationsFinal/FaceRecognition/database.db')
+        #dbpath = '/home/fatih/Desktop/Python/SoftwareDesingApplicationsFinal/FaceRecognition/database.db'
+        self.dbName = 'database.db'
+        self.connection = sqlite.connect(self.dbName)
 
     def insertStudent(self,studentName,studentSurname,studentNumber,faculty,department):
+        with sqlite.connect(self.dbName) as db:
+            list= (studentName,studentSurname,studentNumber,faculty,department)
+            cursor = db.cursor()
+            query = "INSERT INTO students VALUES (null,?,?,?,?,?)"
+            result = cursor.execute(query,list)
+            self.connection.commit()
+            return result
+        '''
         try:
+
             list= (studentName,studentSurname,studentNumber,faculty,department)
             cursor = self.connection.cursor()
             query = "INSERT INTO students VALUES (null,?,?,?,?,?)"
@@ -22,5 +33,5 @@ class database():
             if (self.connection):
                 self.connection.close()
                 print("The SQLite connection is closed")    
-
+        '''
     

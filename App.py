@@ -8,6 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from addcoursedialog import Ui_Dialog
+from PyQt5.QtWidgets import QMessageBox
 from database import database
 import os
 import sqlite3 as sqlite
@@ -134,6 +135,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
         self.db = database()
+        self.getDataForList()
 
         # signal slots
         self.pBOpenCourseAddDialog.clicked.connect(self.addCourseClicked)
@@ -147,14 +149,25 @@ class Ui_MainWindow(object):
         Dialog.show()
         Dialog.exec_()
 
+
     def insertStudent(self):
         print(self.db)
         print(self.nameLineEdit.text(),
               self.surnameLineEdit.text(), self.schoolNumberLineEdit.text(), self.facultyLineEdit.text(), self.departmentLineEdit.text())
 
-        self.db.insertStudent(self.nameLineEdit.text(),
+        flag = self.db.insertStudent(self.nameLineEdit.text(),
                               self.surnameLineEdit.text(), self.schoolNumberLineEdit.text(), self.facultyLineEdit.text(), self.departmentLineEdit.text())
-
+        msgBox = QMessageBox()
+        msgBox.setIcon(QMessageBox.Information)
+        print(flag)
+        if(flag):
+            msgBox.setText("Student is successfully inserted into db")
+            msgBox.setWindowTitle("Success")
+        else:
+            msgBox.setText("Failed when inserted into db")
+            msgBox.setWindowTitle("Error")
+        msgBox.exec()
+    
     def getDataForList(self):
         if(self.tabWidget.currentIndex() == 0):
             self.listWidget.clear()
