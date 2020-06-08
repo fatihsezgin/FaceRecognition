@@ -23,10 +23,11 @@ class camera(QDialog):
         self.buttonOpenCamera.clicked.connect(self.onclicked)
         self.buttonCapture.clicked.connect(self.captureClicked)
         #self.buttonDetect.clicked.connect(facedeneme.detectRecognition)
+        #self.buttonDetect.clicked.connect(self.detectRecognition)
 
     # @pyqtSlot
     def onclicked(self):
-        cap = cv2.VideoCapture(-1)
+        cap = cv2.VideoCapture(0)
         faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
         while cap.isOpened():
             ret, frame = cap.read()

@@ -38,7 +38,7 @@ class App(QMainWindow):
         QApplication.processEvents()
 
     def onclicked(self):
-        cap = cv2.VideoCapture(-1)
+        cap = cv2.VideoCapture(0)
         faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
         while cap.isOpened():
             ret, frame = cap.read()
@@ -155,7 +155,7 @@ class App(QMainWindow):
                 for j, val in enumerate(row):
                     self.tableWidget.setItem(i, j, QtWidgets.QTableWidgetItem(str(val)))
 
-    def onclicked(self):
+    '''def onclicked(self):
         cap = cv2.VideoCapture(-1)
         faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
         while cap.isOpened():
@@ -194,6 +194,7 @@ class App(QMainWindow):
         cap.release()
         cv2.destroyAllWindows()
 
+    '''
     def captureClicked(self):
         self.capture = True
 
