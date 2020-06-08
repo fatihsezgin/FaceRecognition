@@ -7,7 +7,7 @@ from PyQt5 import QtCore
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.uic import loadUi
-import facedeneme
+#import facedeneme
 
 
 def get_gray_scale(frame):
@@ -22,7 +22,7 @@ class camera(QDialog):
         self.value = 1
         self.buttonOpenCamera.clicked.connect(self.onclicked)
         self.buttonCapture.clicked.connect(self.captureClicked)
-        self.buttonDetect.clicked.connect(self.detectRecognition)
+        #self.buttonDetect.clicked.connect(facedeneme.detectRecognition)
 
     # @pyqtSlot
     def onclicked(self):
@@ -47,7 +47,7 @@ class camera(QDialog):
 
                 self.displayImage(frame)
 
-                facedeneme.detectRecognition()
+                #facedeneme.detectRecognition()
 
                 if self.capture:
                     print("capture is clicked")

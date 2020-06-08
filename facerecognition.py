@@ -14,7 +14,8 @@ def get_gray_scale(img_path):
 def detect_faces(img_path):
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     gray_scale = get_gray_scale(img_path)
-    return face_cascade.detectMultiScale(gray_scale, 1.2, 4)
+    return face_cascade.detectMultiScale(gray_scale, scaleFactor=1.2, minNeighbors=5, minSize=(30, 30),
+                                         flags=cv2.CASCADE_SCALE_IMAGE)
 
 
 def crop_face(img_path, x_axis, y_axis, width, height):
@@ -24,7 +25,7 @@ def crop_face(img_path, x_axis, y_axis, width, height):
 
 
 def localBinaryPattern(imagePath):
-    faces = detect_faces(imgPath)
+    faces = detect_faces(imagePath)
     maxArea = 0
     bound = (0, 0, 0, 0)
 
@@ -33,7 +34,14 @@ def localBinaryPattern(imagePath):
         if area > maxArea:
             bound = (x, y, w, h)
 
-    crop = crop_face(imgPath, bound[0], bound[1], bound[2], bound[3])
+
+    '''
+    roi = faces[bound[1]:bound[2], bound[0]:bound[3]]
+    cv2.imshow("sea", roi)
+    cv2.waitKey(0)
+    '''
+
+    crop = crop_face(imagePath, bound[0], bound[1], bound[2], bound[3])
     cropH = crop.shape[0]
     cropW = crop.shape[1]
     lbpImg = numpy.zeros(shape=(cropH, cropW))
@@ -51,7 +59,7 @@ def localBinaryPattern(imagePath):
                             else:
                                 binary = binary + '0'
                 lbpImg[i][j] = int(binary, 2) / 255
-                #print(lbpImg[i][j] * 255)
+                # print(lbpImg[i][j] * 255)
             else:
                 lbpImg[i][j] = crop[i][j] / 255
     return lbpImg
@@ -125,8 +133,24 @@ def compare_histograms(his1, his2):
         distance = distance + sqrt((his1[ite] - his2[ite]) * (his1[ite] - his2[ite]))
     return distance
 
+'''
+image = cv2.imread('alexdeneme.jpg')
+faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+faces = faceCascade.detectMultiScale(
+                    gray,
+                    scaleFactor=1.1,
+                    minNeighbors=5,
+                    minSize=(30, 30),
+                    flags=cv2.CASCADE_SCALE_IMAGE
+                )
+for (x,y,w,h) in faces:
+    cv2.imshow("a",cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2))
+    cv2.waitKey(0)
+'''
 
-calculate('3.png', './histograms/deneme1.png')
+
+calculate('alexdeneme.png', './histograms/deneme1.png')
 
 # hist = cal_histogram(lbpImg)
 #
