@@ -105,7 +105,6 @@ def optimize(crop_arr):
             presidentIndex = candidate
     return crop_arr[presidentIndex]
 
-
 '''cropImg = detect_faces(imgPath)
 lbp = get_lbp(cropImg)
 hist = cal_histogram(lbp, cropImg)'''
