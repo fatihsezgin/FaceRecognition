@@ -6,14 +6,13 @@ import cv2
 imgPath = '3.png'
 
 
-def get_gray_scale(img_path):
-    rgb_image = cv2.imread(img_path)
-    return cv2.cvtColor(rgb_image, cv2.COLOR_BGR2GRAY)
+def get_gray_scale(frame):
+    return cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 
-def detect_faces(img_path):
+def detect_faces(frame):
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-    gray_scale = get_gray_scale(img_path)
+    gray_scale = get_gray_scale(frame)
     faces = face_cascade.detectMultiScale(gray_scale, scaleFactor=1.2, minNeighbors=5, minSize=(30, 30),
                                           flags=cv2.CASCADE_SCALE_IMAGE)
     maxArea = 0
@@ -23,7 +22,7 @@ def detect_faces(img_path):
         if area > maxArea:
             bound = (x, y, w, h)
             maxArea = area
-    return gray_scale[bound[1]:bound[1] + bound[3], bound[0]:bound[0] + bound[2]]
+    return bound, gray_scale[bound[1]:bound[1] + bound[3], bound[0]:bound[0] + bound[2]]
 
 
 def get_lbp(crop):
@@ -77,8 +76,8 @@ def compare_histograms(his1, his2):
 
 def optimize(crop_arr):
     size = len(crop_arr)
-    vote = []
-    diff = []
+    vote = numpy.zeros(size)
+    diff = numpy.zeros(shape=(size, size))
     for fIndex in range(size):
         diff[fIndex][fIndex] = 0.0
         for sIndex in range(fIndex + 1, size):

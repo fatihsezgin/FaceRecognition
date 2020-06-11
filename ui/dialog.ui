@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>390</width>
-    <height>80</height>
+    <width>413</width>
+    <height>106</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,14 +19,28 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Course Name</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="lineEdit"/>
+        <layout class="QFormLayout" name="formLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="courseNameLabel">
+           <property name="text">
+            <string>CourseName</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="courseNameLineEdit"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="teacherNameLabel">
+           <property name="text">
+            <string>TeacherName</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="teacherNameLineEdit"/>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QDialogButtonBox" name="buttonBox">
