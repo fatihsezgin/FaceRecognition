@@ -48,7 +48,6 @@ class App(QMainWindow):
         for i, row in enumerate(cur):
             self.courseStudentTable.insertRow(i)
             for j, val in enumerate(row):
-
                 self.courseStudentTable.setItem(i, j-3, QtWidgets.QTableWidgetItem(str(val)))
 
 
