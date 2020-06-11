@@ -1,5 +1,5 @@
 import sqlite3 as sqlite
-
+from datetime import datetime
 
 # db = sqlite.connect('database.db') #GNU/Linux
 
@@ -77,4 +77,10 @@ class database():
             cursor = db.cursor()
             return cursor.execute("select students.schoolnumber from course_student inner join students on "
                            "students.studentID = course_student.studentid where course_student.courseid = ?",
-                           (courseId,))
+                           (courseId,)).fetchall()
+
+    def createSession(self, courseId):
+        with sqlite.connect(self.dbName) as db:
+            cursor = db.cursor()
+            now = datetime.now()
+            return cursor.execute("Insert Into session values (null,?,?)", (courseId, now.strftime("%d/%m/%Y %H:%M:%S"),))

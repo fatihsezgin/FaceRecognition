@@ -2,11 +2,10 @@ import sys
 from addcoursedialog import Ui_Dialog
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialogButtonBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialogButtonBox, QFileDialog, QLineEdit
 from PyQt5.uic import loadUi
 from database import database
 import os
-import sqlite3 as sqlite
 import cv2
 import facerecognition as fr
 
@@ -31,6 +30,18 @@ class App(QMainWindow):
         self.buttonBox.button(QDialogButtonBox.Ok).clicked.connect(self.assignStudentToCourse)
         self.getDataForList()
         self.frameList = []
+        print(self.db.getStudentsForCourse(1)[1][3])
+        self.buttonAddImage.clicked.connect(self.openFileNameDialog)
+        self.imagePathLineEdit.setEnabled(False)
+
+    def openFileNameDialog(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
+                                                  "All Files (*);;", options=options)
+        if fileName:
+            self.imagePathLineEdit.setText(fileName)
+
 
     def addCourseClicked(self):
         ui = Ui_Dialog()
@@ -44,12 +55,10 @@ class App(QMainWindow):
         courseId = self.db.getCourseId(self.listWidget.currentItem().text())
         cur = self.db.getStudentsForCourse(courseId)
         self.courseStudentTable.setRowCount(0)
-
         for i, row in enumerate(cur):
             self.courseStudentTable.insertRow(i)
             for j, val in enumerate(row):
                 self.courseStudentTable.setItem(i, j-3, QtWidgets.QTableWidgetItem(str(val)))
-
 
     def fillStudents(self):
         self.allStudentTable.setHorizontalHeaderLabels(self.db.getStudentsTableHeaders())
@@ -63,6 +72,11 @@ class App(QMainWindow):
     def assignStudentToCourse(self):
         studentId = self.allStudentTable.item(self.allStudentTable.currentRow(), 0).text()
         courseId = self.db.getCourseId(self.listWidget.currentItem().text())
+        #for i in self.db.getStudentsForCourse(courseId):
+            #i[3] is the studentid
+
+
+
         result = self.db.insertCourseStudent(courseId, studentId)
         if result:
             msgBox = QMessageBox()
@@ -70,6 +84,7 @@ class App(QMainWindow):
             msgBox.setText("Student is successfully inserted into Course")
             msgBox.setWindowTitle("Success")
             msgBox.exec()
+        self.getCourseStudents()
 
     def captureClicked(self):
         self.capture = True
