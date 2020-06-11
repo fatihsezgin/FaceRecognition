@@ -54,5 +54,20 @@ class database():
         with sqlite.connect(self.dbName) as db:
             cursor = db.cursor()
             return cursor.execute("select * from course_student inner join students on "
-                           "students.studentID = course_student.studentid where course_student.courseid = ?",
-                           (courseId,))
+                                  "students.studentID = course_student.studentid where course_student.courseid = ?",
+                                  (courseId,)).fetchall()
+
+    def getStudentsTableHeaders(self):
+        with sqlite.connect(self.dbName) as db:
+            cursor = db.cursor()
+            cursor.execute("PRAGMA table_info(students)")
+            cur = cursor.fetchall()
+            headers = []
+            for i in range(len(cur)):
+                headers.append(cur[i][1])
+            return headers
+
+    def getAllStudents(self):
+        with sqlite.connect(self.dbName) as db:
+            cursor = db.cursor()
+            return cursor.execute("Select * from students").fetchall()

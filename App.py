@@ -9,7 +9,6 @@ import os
 import sqlite3 as sqlite
 import cv2
 import facerecognition as fr
-import simplejson
 
 
 def get_gray_scale(frame):
@@ -28,6 +27,7 @@ class App(QMainWindow):
         self.pBOpenCourseAddDialog.clicked.connect(self.addCourseClicked)
         self.buttonDbSave.clicked.connect(self.insertStudent)
         self.tabWidget.currentChanged.connect(self.getDataForList)
+        self.listWidget.itemClicked.connect(self.getCourseStudents)
         self.buttonBox.button(QDialogButtonBox.Ok).clicked.connect(self.assignStudentToCourse)
         self.getDataForList()
         self.frameList = []
@@ -39,8 +39,30 @@ class App(QMainWindow):
         self.fillCourses()
         QApplication.processEvents()
 
+    def getCourseStudents(self):
+        self.courseStudentTable.setHorizontalHeaderLabels(self.db.getStudentsTableHeaders())
+        courseId = self.db.getCourseId(self.listWidget.currentItem().text())
+        cur = self.db.getStudentsForCourse(courseId)
+        self.courseStudentTable.setRowCount(0)
+
+        for i, row in enumerate(cur):
+            self.courseStudentTable.insertRow(i)
+            for j, val in enumerate(row):
+
+                self.courseStudentTable.setItem(i, j-3, QtWidgets.QTableWidgetItem(str(val)))
+
+
+    def fillStudents(self):
+        self.allStudentTable.setHorizontalHeaderLabels(self.db.getStudentsTableHeaders())
+        cur = self.db.getAllStudents()
+        self.allStudentTable.setRowCount(0)
+        for i, row in enumerate(cur):
+            self.allStudentTable.insertRow(i)
+            for j, val in enumerate(row):
+                self.allStudentTable.setItem(i, j, QtWidgets.QTableWidgetItem(str(val)))
+
     def assignStudentToCourse(self):
-        studentId = self.tableWidget.item(self.tableWidget.currentRow(), 0).text()
+        studentId = self.allStudentTable.item(self.allStudentTable.currentRow(), 0).text()
         courseId = self.db.getCourseId(self.listWidget.currentItem().text())
         result = self.db.insertCourseStudent(courseId, studentId)
         if result:
@@ -110,24 +132,6 @@ class App(QMainWindow):
         self.listWidget.addItems(filenames)
         '''
         # QApplication.processEvents()
-
-    def fillStudents(self):
-        with sqlite.connect('database.db') as db:
-            cursor = db.cursor()
-            cursor.execute("PRAGMA table_info(students)")
-            cur = cursor.fetchall()
-            headers = []
-            for i in range(len(cur)):
-                headers.append(cur[i][1])
-            self.tableWidget.setHorizontalHeaderLabels(headers)
-            cursor.execute("SELECT * FROM students")
-            cur = cursor.fetchall()
-
-            self.tableWidget.setRowCount(0)
-            for i, row in enumerate(cur):
-                self.tableWidget.insertRow(i)
-                for j, val in enumerate(row):
-                    self.tableWidget.setItem(i, j, QtWidgets.QTableWidgetItem(str(val)))
 
     def onclicked(self):
         cap = cv2.VideoCapture(-1)
