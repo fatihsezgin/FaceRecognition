@@ -292,6 +292,26 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Attendancy History</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QListWidget" name="studentHistory"/>
+          </item>
+          <item>
+           <widget class="QListWidget" name="courseHistory"/>
+          </item>
+          <item>
+           <widget class="QListWidget" name="sessionHistory"/>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
