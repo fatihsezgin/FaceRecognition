@@ -34,7 +34,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="takeAttendanceButton">
+      <widget class="QPushButton" name="buttonTakeAttendance">
        <property name="text">
         <string>Take Attendance</string>
        </property>
