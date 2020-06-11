@@ -48,10 +48,10 @@ def get_lbp(crop):
     return lbpImg
 
 
-def cal_histogram(lbp_img, crop):
-    imgArea = crop.shape[0] * crop.shape[1]
-    regionH = int(crop.shape[0] / 8)
-    regionW = int(crop.shape[1] / 8)
+def cal_histogram(lbp_img):
+    imgArea = lbp_img.shape[0] * lbp_img.shape[1]
+    regionH = int(lbp_img.shape[0] / 8)
+    regionW = int(lbp_img.shape[1] / 8)
     histogram = numpy.zeros(shape=256 * 8 * 8)
     for i in range(64):
         for a in range(regionH):
@@ -82,9 +82,9 @@ def optimize(crop_arr):
         diff[fIndex][fIndex] = 0.0
         for sIndex in range(fIndex + 1, size):
             lbp1 = get_lbp(crop_arr[fIndex])
-            hist1 = cal_histogram(lbp1, crop_arr[fIndex])
+            hist1 = cal_histogram(lbp1)
             lbp2 = get_lbp(crop_arr[sIndex])
-            hist2 = cal_histogram(lbp2, crop_arr[sIndex])
+            hist2 = cal_histogram(lbp2)
             difference = compare_histograms(hist1, hist2)
             diff[fIndex][sIndex] = difference
             diff[sIndex][fIndex] = difference

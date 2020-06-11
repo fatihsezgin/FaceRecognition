@@ -7,7 +7,7 @@ from PyQt5 import QtCore
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.uic import loadUi
-#import facedeneme
+from database import database
 
 
 def get_gray_scale(frame):
@@ -20,10 +20,18 @@ class camera(QDialog):
         loadUi("ui/camera.ui", self)
         self.capture = False
         self.value = 1
+        self.db = database()
+        self.fillCourses()
         self.buttonOpenCamera.clicked.connect(self.onclicked)
-        self.buttonCapture.clicked.connect(self.captureClicked)
-        #self.buttonDetect.clicked.connect(facedeneme.detectRecognition)
-        #self.buttonDetect.clicked.connect(self.detectRecognition)
+        self.buttonTakeAttendance.clicked.connect(self.takeAttendance)
+
+    def takeAttendance(self):
+        pass
+
+    def fillCourses(self):
+        # get all files' and folders' names in the current directory
+        self.listWidget.clear()
+        self.listWidget.addItems(self.db.getCourses())
 
     # @pyqtSlot
     def onclicked(self):

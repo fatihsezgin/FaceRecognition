@@ -9,6 +9,7 @@ import os
 import sqlite3 as sqlite
 import cv2
 import facerecognition as fr
+import simplejson
 
 
 def get_gray_scale(frame):
@@ -48,7 +49,6 @@ class App(QMainWindow):
             msgBox.setText("Student is successfully inserted into Course")
             msgBox.setWindowTitle("Success")
             msgBox.exec()
-
 
     def captureClicked(self):
         self.capture = True
@@ -150,9 +150,12 @@ class App(QMainWindow):
                             print(self.frameList)
                             self.captureCount = 0
                             optimizedPhoto = fr.optimize(self.frameList)
-
+                            lbp = fr.get_lbp(optimizedPhoto)
+                            histogram = fr.cal_histogram(lbp)
                             try:
                                 os.mkdir(f"./images/{self.schoolNumberLineEdit.text()}")
+                                with open(f"./histograms/{self.schoolNumberLineEdit.text()}.txt", 'w') as file_handler:
+                                    file_handler.write("\n".join(str(item) for item in histogram))
                             except FileExistsError:
                                 pass
                             imagePath = f"./images/{self.schoolNumberLineEdit.text()}/{self.nameLineEdit.text()}.png"
