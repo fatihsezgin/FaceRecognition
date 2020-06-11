@@ -34,6 +34,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="buttonCloseCamera">
+       <property name="text">
+        <string>Close Camera</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="buttonTakeAttendance">
        <property name="text">
         <string>Take Attendance</string>

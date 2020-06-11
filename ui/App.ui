@@ -31,6 +31,9 @@
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
              <widget class="QListWidget" name="listWidget">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -264,6 +267,13 @@
                <widget class="QPushButton" name="buttonOpenCamera">
                 <property name="text">
                  <string>Open Camera</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="buttonCloseCamera">
+                <property name="text">
+                 <string>Close Camera</string>
                 </property>
                </widget>
               </item>

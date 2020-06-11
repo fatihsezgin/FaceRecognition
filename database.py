@@ -28,6 +28,11 @@ class database():
             self.connection.commit()
             return result
 
+    def studentById(self, studentId):
+        with sqlite.connect(self.dbName) as db:
+            cursor = db.cursor()
+            return cursor.execute("Select * from students where studentID=?", (studentId,)).fetchall()
+
     def getCourses(self):
         with sqlite.connect(self.dbName) as db:
             cursor = db.cursor()

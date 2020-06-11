@@ -17,22 +17,31 @@ def get_gray_scale(frame):
 class App(QMainWindow):
     def __init__(self):
         super(App, self).__init__()
+        self.cap = cv2.VideoCapture(-1)
         loadUi("ui/App.ui", self)
+
         self.capture = False
+        self.db = database()
         self.captureCount = 0
+        self.buttonCloseCamera.clicked.connect(self.closeCamera)
         self.buttonOpenCamera.clicked.connect(self.onclicked)
         self.buttonCapture.clicked.connect(self.captureClicked)
-        self.db = database()
         self.pBOpenCourseAddDialog.clicked.connect(self.addCourseClicked)
         self.buttonDbSave.clicked.connect(self.insertStudent)
         self.tabWidget.currentChanged.connect(self.getDataForList)
         self.listWidget.itemClicked.connect(self.getCourseStudents)
         self.buttonBox.button(QDialogButtonBox.Ok).clicked.connect(self.assignStudentToCourse)
-        self.getDataForList()
-        self.frameList = []
+
         print(self.db.getStudentsForCourse(1)[1][3])
         self.buttonAddImage.clicked.connect(self.openFileNameDialog)
         self.imagePathLineEdit.setEnabled(False)
+        self.getDataForList()
+        self.frameList = []
+
+    def closeCamera(self):
+        self.imgLabel.clear()
+        self.cap.release()
+        cv2.destroyAllWindows()
 
     def openFileNameDialog(self):
         options = QFileDialog.Options()
@@ -41,7 +50,6 @@ class App(QMainWindow):
                                                   "All Files (*);;", options=options)
         if fileName:
             self.imagePathLineEdit.setText(fileName)
-
 
     def addCourseClicked(self):
         ui = Ui_Dialog()
@@ -58,7 +66,7 @@ class App(QMainWindow):
         for i, row in enumerate(cur):
             self.courseStudentTable.insertRow(i)
             for j, val in enumerate(row):
-                self.courseStudentTable.setItem(i, j-3, QtWidgets.QTableWidgetItem(str(val)))
+                self.courseStudentTable.setItem(i, j - 3, QtWidgets.QTableWidgetItem(str(val)))
 
     def fillStudents(self):
         self.allStudentTable.setHorizontalHeaderLabels(self.db.getStudentsTableHeaders())
@@ -72,10 +80,8 @@ class App(QMainWindow):
     def assignStudentToCourse(self):
         studentId = self.allStudentTable.item(self.allStudentTable.currentRow(), 0).text()
         courseId = self.db.getCourseId(self.listWidget.currentItem().text())
-        #for i in self.db.getStudentsForCourse(courseId):
-            #i[3] is the studentid
-
-
+        # for i in self.db.getStudentsForCourse(courseId):
+        # i[3] is the studentid
 
         result = self.db.insertCourseStudent(courseId, studentId)
         if result:
@@ -134,6 +140,9 @@ class App(QMainWindow):
             self.listWidget.clear()
             self.fillCourses()
             self.fillStudents()
+            self.cap.release()
+            self.imgLabel.clear()
+            cv2.destroyAllWindows()
             QtWidgets.QApplication.processEvents()
 
     def fillCourses(self):
@@ -148,16 +157,18 @@ class App(QMainWindow):
         # QApplication.processEvents()
 
     def onclicked(self):
-        cap = cv2.VideoCapture(-1)
-        while cap.isOpened():
-            ret, frame = cap.read()
+        print("on clicked")
+        self.cap = cv2.VideoCapture(-1)
+        while self.cap.isOpened():
+            ret, frame = self.cap.read()
             if ret:
                 bound, croppedFrame = fr.detect_faces(frame)
                 self.displayImage(cv2.rectangle(frame, (bound[0], bound[1]), (bound[0] + bound[2], bound[1] + bound[3]),
                                                 (0, 255, 0), 2))
                 if self.capture:
                     print("capture is clicked")
-                    self.imageCountLabel.setText("Please take " + str(3 - self.captureCount) + " images for finding the optimum image")
+                    self.imageCountLabel.setText(
+                        "Please take " + str(3 - self.captureCount) + " images for finding the optimum image")
                     if self.captureCount < 4:
                         self.captureCount += 1
                         bound, capturedFace = fr.detect_faces(frame)
@@ -183,7 +194,7 @@ class App(QMainWindow):
                             self.frameList.clear()
             else:
                 print("not found")
-        cap.release()
+        self.cap.release()
         cv2.destroyAllWindows()
 
 

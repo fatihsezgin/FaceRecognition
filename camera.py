@@ -5,7 +5,7 @@ import cv2
 from PyQt5 import QtWidgets
 from PyQt5 import QtCore
 from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtWidgets import QDialog, QApplication
+from PyQt5.QtWidgets import QDialog, QApplication, QAbstractItemView
 from PyQt5.uic import loadUi
 from database import database
 import facerecognition as fr
@@ -19,15 +19,22 @@ class camera(QDialog):
     def __init__(self):
         super(camera, self).__init__()
         loadUi("ui/camera.ui", self)
+        self.cap = cv2.VideoCapture(-1)
         self.capture = False
         self.value = 1
         self.db = database()
         self.fillCourses()
+        self.buttonCloseCamera.clicked.connect(self.closeCamera)
         self.buttonOpenCamera.clicked.connect(self.onclicked)
         self.buttonTakeAttendance.clicked.connect(self.takeAttendance)
 
     def takeAttendance(self):
         self.capture = True
+
+    def closeCamera(self):
+        self.imgLabel.clear()
+        self.cap.release()
+        cv2.destroyAllWindows()
 
     def fillCourses(self):
         # get all files' and folders' names in the current directory
@@ -36,10 +43,12 @@ class camera(QDialog):
 
     # @pyqtSlot
     def onclicked(self):
-        cap = cv2.VideoCapture(0)
-        faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-        while cap.isOpened():
-            ret, frame = cap.read()
+        courseId = self.db.getCourseId(self.listWidget.currentItem().text())
+        self.db.createSession(courseId)
+        self.listWidget.setSelectionMode(QAbstractItemView.NoSelection)
+        self.cap = cv2.VideoCapture(0)
+        while self.cap.isOpened():
+            ret, frame = self.cap.read()
             if ret:
                 bound, croppedFace = fr.detect_faces(frame)
                 self.displayImage(cv2.rectangle(frame, (bound[0], bound[1]), (bound[0] + bound[2], bound[1] + bound[3]),
@@ -59,7 +68,7 @@ class camera(QDialog):
                         if distance < mindistance:
                             mindistance = distance
                             minindex = index
-                            
+
                     if mindistance > 1.0:
                         print('similar face not found')
                     else:
@@ -92,7 +101,7 @@ class camera(QDialog):
                     print("image saved")'''
             else:
                 print("not found")
-        cap.release()
+        self.cap.release()
         cv2.destroyAllWindows()
 
     def captureClicked(self):
