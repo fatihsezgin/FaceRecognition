@@ -49,3 +49,10 @@ class database():
         with sqlite.connect(self.dbName) as db:
             cursor = db.cursor()
             return cursor.execute("INSERT INTO course_student VALUES (null,?,?)", (courseId, studentId,))
+
+    def getStudentsForCourse(self, courseId):
+        with sqlite.connect(self.dbName) as db:
+            cursor = db.cursor()
+            return cursor.execute("select * from course_student inner join students on "
+                           "students.studentID = course_student.studentid where course_student.courseid = ?",
+                           (courseId,))
