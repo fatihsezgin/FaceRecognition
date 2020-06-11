@@ -8,6 +8,7 @@ from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.uic import loadUi
 from database import database
+import facerecognition as fr
 
 
 def get_gray_scale(frame):
@@ -26,7 +27,7 @@ class camera(QDialog):
         self.buttonTakeAttendance.clicked.connect(self.takeAttendance)
 
     def takeAttendance(self):
-        pass
+        self.capture = True
 
     def fillCourses(self):
         # get all files' and folders' names in the current directory
@@ -40,7 +41,32 @@ class camera(QDialog):
         while cap.isOpened():
             ret, frame = cap.read()
             if ret:
-                gray = get_gray_scale(frame)
+                bound, croppedFace = fr.detect_faces(frame)
+                self.displayImage(cv2.rectangle(frame, (bound[0], bound[1]), (bound[0] + bound[2], bound[1] + bound[3]),
+                                                (0, 255, 0), 2))
+                if self.capture:
+                    lbp = fr.get_lbp(croppedFace)
+                    courseId = self.db.getCourseId(self.listWidget.currentItem().text())
+                    histogram = fr.cal_histogram(lbp)
+                    ids = self.db.getStudentIdsForCourse(courseId)
+                    size = len(ids)
+                    mindistance = fr.compare_histograms(histogram, np.loadtxt("histograms/"+str(ids[0])+".txt"))
+                    minindex = 0
+                    for index in range(size-1):
+                        studentNo = ids[index+1]
+                        data = np.loadtxt("histograms/"+str(studentNo)+".txt")
+                        distance = fr.compare_histograms(histogram, data)
+                        if distance < mindistance:
+                            mindistance = distance
+                            minindex = index
+                            
+                    if mindistance > 1.0:
+                        print('similar face not found')
+                    else:
+                        print(ids[minindex])
+
+                    self.capture = False
+                '''gray = get_gray_scale(frame)
                 faces = faceCascade.detectMultiScale(
                     gray,
                     scaleFactor=1.1,
@@ -56,8 +82,6 @@ class camera(QDialog):
 
                 self.displayImage(frame)
 
-                #facedeneme.detectRecognition()
-
                 if self.capture:
                     print("capture is clicked")
                     self.value += 1
@@ -65,7 +89,7 @@ class camera(QDialog):
                     print(type(grayScale))
                     cv2.imwrite("./images/%s.png" % self.value, grayScale[y:bound[1] + bound[3], x:bound[0] + bound[2]])
                     self.capture = False
-                    print("image saved")
+                    print("image saved")'''
             else:
                 print("not found")
         cap.release()

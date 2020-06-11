@@ -71,3 +71,10 @@ class database():
         with sqlite.connect(self.dbName) as db:
             cursor = db.cursor()
             return cursor.execute("Select * from students").fetchall()
+
+    def getStudentIdsForCourse(self, courseId):
+        with sqlite.connect(self.dbName) as db:
+            cursor = db.cursor()
+            return cursor.execute("select students.schoolnumber from course_student inner join students on "
+                           "students.studentID = course_student.studentid where course_student.courseid = ?",
+                           (courseId,))
