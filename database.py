@@ -163,7 +163,8 @@ class database():
             studentList = []
             print(cur)
             for i in range(len(cur)):
-                student = self.studentById(cur[i][2])[0]
+                student = self.studentById(cur[i][2])
+                print(student)
                 studentName = student[1] + ' ' + student[2]
                 studentList.append(studentName)
             return studentList
