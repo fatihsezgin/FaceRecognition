@@ -89,8 +89,9 @@ def compare_histograms(his1, his2):
         return -1
     distance = 0
     for ite in range(len(his2)):
-        distance = distance + sqrt((his1[ite] - his2[ite]) * (his1[ite] - his2[ite]))
-    return distance
+        distance = distance + (his1[ite] - his2[ite]) * (his1[ite] - his2[ite])
+
+    return sqrt(distance)
 
 
 def optimize(crop_arr):
