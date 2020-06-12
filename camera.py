@@ -5,11 +5,11 @@ import cv2
 from PyQt5 import QtWidgets
 from PyQt5 import QtCore
 from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtWidgets import QDialog, QApplication, QAbstractItemView
+from PyQt5.QtWidgets import QDialog, QApplication, QAbstractItemView, QMessageBox
 from PyQt5.uic import loadUi
 from database import database
 import facerecognition as fr
-
+from detectDialog import DetectDialog
 
 def get_gray_scale(frame):
     return cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -59,7 +59,7 @@ class camera(QDialog):
                     histogram = fr.cal_histogram(lbp)
                     ids = self.db.getStudentIdsForCourse(courseId)
                     size = len(ids)
-                    mindistance = fr.compare_histograms(histogram, np.loadtxt("histograms/"+str(ids[0])+".txt"))
+                    mindistance = fr.compare_histograms(histogram, np.loadtxt("histograms/"+str(ids[0][0])+".txt"))
                     minindex = 0
                     for index in range(size-1):
                         studentNo = ids[index+1]
@@ -67,38 +67,20 @@ class camera(QDialog):
                         distance = fr.compare_histograms(histogram, data)
                         if distance < mindistance:
                             mindistance = distance
-                            minindex = index
+                            minindex = index+1
 
                     if mindistance > 1.0:
                         print('similar face not found')
                     else:
-                        print(ids[minindex])
-
+                        studentId = ids[minindex][0]
+                        print(studentId)
+                        name = self.db.studentById(studentId)[0][1]
+                        reply = QMessageBox.question(self, 'A face is detected', "This face is recognized as " + name + " do you confirm?",QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                        if reply == QMessageBox.Yes:
+                            self.db.insertSessionStudent(self.db.getLastSessionId(), studentId)
+                        else:
+                            print("not confirmed")
                     self.capture = False
-                '''gray = get_gray_scale(frame)
-                faces = faceCascade.detectMultiScale(
-                    gray,
-                    scaleFactor=1.1,
-                    minNeighbors=5,
-                    minSize=(30, 30),
-                    flags=cv2.CASCADE_SCALE_IMAGE
-                )
-
-                bound = (0, 0, 0, 0)
-                for (x, y, w, h) in faces:
-                    self.displayImage(cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2))
-                    bound = (x, y, w, h)
-
-                self.displayImage(frame)
-
-                if self.capture:
-                    print("capture is clicked")
-                    self.value += 1
-                    grayScale = get_gray_scale(frame)
-                    print(type(grayScale))
-                    cv2.imwrite("./images/%s.png" % self.value, grayScale[y:bound[1] + bound[3], x:bound[0] + bound[2]])
-                    self.capture = False
-                    print("image saved")'''
             else:
                 print("not found")
         self.cap.release()

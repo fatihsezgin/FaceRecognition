@@ -1,6 +1,7 @@
 import sqlite3 as sqlite
 from datetime import datetime
 
+
 # db = sqlite.connect('database.db') #GNU/Linux
 
 class database():
@@ -81,11 +82,22 @@ class database():
         with sqlite.connect(self.dbName) as db:
             cursor = db.cursor()
             return cursor.execute("select students.schoolnumber from course_student inner join students on "
-                           "students.studentID = course_student.studentid where course_student.courseid = ?",
-                           (courseId,)).fetchall()
+                                  "students.studentID = course_student.studentid where course_student.courseid = ?",
+                                  (courseId,)).fetchall()
 
     def createSession(self, courseId):
         with sqlite.connect(self.dbName) as db:
             cursor = db.cursor()
             now = datetime.now()
-            return cursor.execute("Insert Into session values (null,?,?)", (courseId, now.strftime("%d/%m/%Y %H:%M:%S"),))
+            return cursor.execute("Insert Into session values (null,?,?)",
+                                  (courseId, now.strftime("%d/%m/%Y %H:%M:%S"),))
+
+    def getLastSessionId(self):
+        with sqlite.connect(self.dbName) as db:
+            cursor = db.cursor()
+            return cursor.execute("Select MAX(id) From session").fetchone()
+
+    def insertSessionStudent(self, sessionId, studentId):
+        with sqlite.connect(self.dbName) as db:
+            cursor = db.cursor()
+            return cursor.execute("INSERT INTO session_student VALUES (null,?,?)", (sessionId, studentId,))

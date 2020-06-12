@@ -300,13 +300,13 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
-           <widget class="QListWidget" name="studentHistory"/>
-          </item>
-          <item>
            <widget class="QListWidget" name="courseHistory"/>
           </item>
           <item>
            <widget class="QListWidget" name="sessionHistory"/>
+          </item>
+          <item>
+           <widget class="QListWidget" name="studentHistory"/>
           </item>
          </layout>
         </item>

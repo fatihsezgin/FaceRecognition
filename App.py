@@ -13,36 +13,57 @@ import facerecognition as fr
 def get_gray_scale(frame):
     return cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-
+"""
+    The main class that communicates with UI and includes helper functions in it.
+"""
 class App(QMainWindow):
     def __init__(self):
         super(App, self).__init__()
+        # Opens the default camera, the paramater can be change for different OS
         self.cap = cv2.VideoCapture(-1)
+        # loads whole UI to the class
         loadUi("ui/App.ui", self)
 
+        # flag that to see if the capture button is clicked
         self.capture = False
+        # instance of database connection
         self.db = database()
+        # capture count for keep record of how many images needed to find and store the optimized image
         self.captureCount = 0
+
+        # Signal / Slot connections, necessarily signals have been connected to functions
         self.buttonCloseCamera.clicked.connect(self.closeCamera)
         self.buttonOpenCamera.clicked.connect(self.onclicked)
         self.buttonCapture.clicked.connect(self.captureClicked)
-        self.pBOpenCourseAddDialog.clicked.connect(self.addCourseClicked)
-        self.buttonDbSave.clicked.connect(self.insertStudent)
+
+        self.pBOpenCourseAddDialog.clicked.connect(self.addCourseClicked) # to open a dialog for entering a new course
+        self.buttonDbSave.clicked.connect(self.insertStudent) # to save the student into db
+
+        # if the current tab changes it's triggers the function, and the function fills the UI
         self.tabWidget.currentChanged.connect(self.getDataForList)
+        # in same way any signal triggers the function that fills the related table
         self.listWidget.itemClicked.connect(self.getCourseStudents)
+        # to confirm that selected student will be assigned to the seleced course
         self.buttonBox.button(QDialogButtonBox.Ok).clicked.connect(self.assignStudentToCourse)
 
-        print(self.db.getStudentsForCourse(1)[1][3])
+        # to upload a image that wanted to use
         self.buttonAddImage.clicked.connect(self.openFileNameDialog)
+        # for protection the path that the image is stored will not be editable, but can be seen for confirmation
         self.imagePathLineEdit.setEnabled(False)
+        # in the beginning of the app, to fill the UI
         self.getDataForList()
+
+        # a list that keeps the student face credentials up to 4 images.
+        # this list is used for finding the optimized image for recognizing the person
         self.frameList = []
 
+    # closes the camera
     def closeCamera(self):
         self.imgLabel.clear()
         self.cap.release()
         cv2.destroyAllWindows()
 
+    # to upload a image
     def openFileNameDialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -51,6 +72,7 @@ class App(QMainWindow):
         if fileName:
             self.imagePathLineEdit.setText(fileName)
 
+    # for showing the dialog that enables the course insertion
     def addCourseClicked(self):
         ui = Ui_Dialog()
         ui.show()
@@ -58,7 +80,9 @@ class App(QMainWindow):
         self.fillCourses()
         QApplication.processEvents()
 
+    # function sets the table of attendances for selected course
     def getCourseStudents(self):
+        # table headers is settled
         self.courseStudentTable.setHorizontalHeaderLabels(self.db.getStudentsTableHeaders())
         courseId = self.db.getCourseId(self.listWidget.currentItem().text())
         cur = self.db.getStudentsForCourse(courseId)
@@ -66,8 +90,10 @@ class App(QMainWindow):
         for i, row in enumerate(cur):
             self.courseStudentTable.insertRow(i)
             for j, val in enumerate(row):
+                # the db query includes a join so the j-3 would fill the table
                 self.courseStudentTable.setItem(i, j - 3, QtWidgets.QTableWidgetItem(str(val)))
 
+    # function sets the table of students
     def fillStudents(self):
         self.allStudentTable.setHorizontalHeaderLabels(self.db.getStudentsTableHeaders())
         cur = self.db.getAllStudents()
@@ -77,6 +103,7 @@ class App(QMainWindow):
             for j, val in enumerate(row):
                 self.allStudentTable.setItem(i, j, QtWidgets.QTableWidgetItem(str(val)))
 
+    # to assign any student to any course just function is triggered
     def assignStudentToCourse(self):
         studentId = self.allStudentTable.item(self.allStudentTable.currentRow(), 0).text()
         courseId = self.db.getCourseId(self.listWidget.currentItem().text())
@@ -90,11 +117,15 @@ class App(QMainWindow):
             msgBox.setText("Student is successfully inserted into Course")
             msgBox.setWindowTitle("Success")
             msgBox.exec()
+        # lastly updates the UI
         self.getCourseStudents()
 
+    # changes the state of the capture variable. With this variable we can understand that an image from video will be
+    # captured.
     def captureClicked(self):
         self.capture = True
 
+    # to display the video into UI,
     def displayImage(self, img):
         qformat = QImage.Format_Indexed8
         if len(img.shape) == 3:
@@ -110,6 +141,7 @@ class App(QMainWindow):
             QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
         QApplication.processEvents()
 
+    # for inserting the student into db
     def insertStudent(self):
         flag = self.db.insertStudent(self.nameLineEdit.text(),
                                      self.surnameLineEdit.text(), self.schoolNumberLineEdit.text(),
@@ -127,6 +159,7 @@ class App(QMainWindow):
         msgBox.exec()
         self.clearStudentLineEdits()
 
+    # helper function that clears all the form elements for inserting student into db
     def clearStudentLineEdits(self):
         self.nameLineEdit.clear()
         self.surnameLineEdit.clear()
@@ -135,6 +168,7 @@ class App(QMainWindow):
         self.departmentLineEdit.clear()
         self.imagePathLineEdit.clear()
 
+    # to pass the first tab will trigger this function
     def getDataForList(self):
         if self.tabWidget.currentIndex() == 0:
             self.listWidget.clear()
@@ -150,12 +184,7 @@ class App(QMainWindow):
         self.listWidget.clear()
         self.listWidget.addItems(self.db.getCourses())
 
-        '''filenames = os.listdir("./courses/")
-        print(filenames)
-        self.listWidget.addItems(filenames)
-        '''
-        # QApplication.processEvents()
-
+     # function that runs when the camere is open
     def onclicked(self):
         print("on clicked")
         self.cap = cv2.VideoCapture(-1)
