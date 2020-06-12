@@ -2,7 +2,7 @@ import sys
 from addcoursedialog import Ui_Dialog
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialogButtonBox, QFileDialog, QLineEdit
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialogButtonBox
 from PyQt5.uic import loadUi
 from database import database
 import os
@@ -19,7 +19,7 @@ def get_gray_scale(frame):
 class App(QMainWindow):
     def __init__(self):
         super(App, self).__init__()
-        # Opens the default camera, the paramater can be change for different OS
+        # Opens the default camera, the parameter can be change for different OS
         self.cap = cv2.VideoCapture(-1)
         # loads whole UI to the class
         loadUi("ui/App.ui", self)
@@ -45,11 +45,9 @@ class App(QMainWindow):
         self.tabWidget.currentChanged.connect(self.getDataForList)
         # in same way any signal triggers the function that fills the related table
         self.listWidget.itemClicked.connect(self.getCourseStudents)
-        # to confirm that selected student will be assigned to the seleced course
+        # to confirm that selected student will be assigned to the selected course
         self.buttonBox.button(QDialogButtonBox.Ok).clicked.connect(self.assignStudentToCourse)
 
-        # to upload a image that wanted to use
-        self.buttonAddImage.clicked.connect(self.openFileNameDialog)
         # for protection the path that the image is stored will not be editable, but can be seen for confirmation
         self.imagePathLineEdit.setEnabled(False)
         # in the beginning of the app, to fill the UI
@@ -65,14 +63,6 @@ class App(QMainWindow):
         self.cap.release()
         cv2.destroyAllWindows()
 
-    # to upload a image
-    def openFileNameDialog(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
-                                                  "All Files (*);;", options=options)
-        if fileName:
-            self.imagePathLineEdit.setText(fileName)
 
     # for showing the dialog that enables the course insertion
     def addCourseClicked(self):
