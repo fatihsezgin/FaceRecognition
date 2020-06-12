@@ -78,6 +78,15 @@ class database():
             cur = cursor.fetchone()
             return cur[0]
 
+
+    def getSessionId(self, date):
+        with sqlite.connect(self.dbName) as db:
+            cursor = db.cursor()
+            print('date '+date)
+            cursor.execute("Select * from session where createdAt =?", (date,))
+            cur = cursor.fetchall()
+            return cur[0][0]
+
     # inserts a student into course
     def insertCourseStudent(self, courseId, studentId):
         with sqlite.connect(self.dbName) as db:
@@ -135,4 +144,36 @@ class database():
     def insertSessionStudent(self, sessionId, studentId):
         with sqlite.connect(self.dbName) as db:
             cursor = db.cursor()
-            return cursor.execute("INSERT INTO session_student VALUES (null,?,?)", (sessionId, studentId,))
+            return cursor.execute("INSERT INTO session_student VALUES (null,?,?)", (int(sessionId), int(studentId),))
+
+    def getSessionByCourseId(self, courseID):
+        with sqlite.connect(self.dbName) as db:
+            cursor = db.cursor()
+            cur = cursor.execute("Select * from session where courseid = ?",(courseID,)).fetchall()
+            sessionList = []
+            for i in range(len(cur)):
+                sessionList.append(cur[i][2])
+            return sessionList
+
+    def getStudentsBySession(self, sessionId):
+        with sqlite.connect(self.dbName) as db:
+            cursor = db.cursor()
+            print('session id '+str(sessionId))
+            cur = cursor.execute("Select * from session_student where sessionid = ?",(sessionId,)).fetchall()
+            studentList = []
+            print(cur)
+            for i in range(len(cur)):
+                student = self.studentById(cur[i][2])[0]
+                studentName = student[1] + ' ' + student[2]
+                studentList.append(studentName)
+            return studentList
+
+    def getStudentByStudentNo(self, studentNo):
+        with sqlite.connect(self.dbName) as db:
+            cursor = db.cursor()
+            return cursor.execute("Select * from students where schoolnumber=?", (studentNo,)).fetchall()
+
+    def getStudentIdBySchoolNo(self, no):
+        with sqlite.connect(self.dbName) as db:
+            cursor = db.cursor()
+            return cursor.execute("Select studentId from students where schoolnumber=?", (no,)).fetchall()

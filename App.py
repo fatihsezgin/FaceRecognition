@@ -20,7 +20,7 @@ class App(QMainWindow):
     def __init__(self):
         super(App, self).__init__()
         # Opens the default camera, the parameter can be change for different OS
-        self.cap = cv2.VideoCapture(-1)
+        self.cap = cv2.VideoCapture(0)
         # loads whole UI to the class
         loadUi("ui/App.ui", self)
 
@@ -57,6 +57,11 @@ class App(QMainWindow):
         # this list is used for finding the optimized image for recognizing the person
         self.frameList = []
 
+        self.courseHistory.addItems(self.db.getCourses())
+        self.courseHistory.itemClicked.connect(self.getCourseSessions)
+        self.sessionHistory.itemClicked.connect(self.getSessionStudents)
+        #self.studentHistory
+
     # closes the camera
     def closeCamera(self):
         self.imgLabel.clear()
@@ -71,6 +76,19 @@ class App(QMainWindow):
         ui.exec_()
         self.fillCourses()
         QApplication.processEvents()
+
+    def getCourseSessions(self):
+        self.sessionHistory.clear()
+        courseId = self.db.getCourseId(self.courseHistory.currentItem().text())
+        print(courseId)
+        print(self.db.getSessionByCourseId(courseId))
+        self.sessionHistory.addItems(self.db.getSessionByCourseId(courseId))
+
+    def getSessionStudents(self):
+        self.studentHistory.clear()
+        sessionId = self.db.getSessionId(self.sessionHistory.currentItem().text())
+        print(sessionId)
+        self.studentHistory.addItems(self.db.getStudentsBySession(sessionId))
 
     # function sets the table of attendances for selected course
     def getCourseStudents(self):

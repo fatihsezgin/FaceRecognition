@@ -9,7 +9,6 @@ from PyQt5.QtWidgets import QDialog, QApplication, QAbstractItemView, QMessageBo
 from PyQt5.uic import loadUi
 from database import database
 import facerecognition as fr
-from detectDialog import DetectDialog
 
 def get_gray_scale(frame):
     return cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -19,7 +18,7 @@ class camera(QDialog):
     def __init__(self):
         super(camera, self).__init__()
         loadUi("ui/camera.ui", self)
-        self.cap = cv2.VideoCapture(-1)
+        self.cap = cv2.VideoCapture(0)
         self.capture = False
         self.value = 1
         self.db = database()
@@ -62,7 +61,7 @@ class camera(QDialog):
                     mindistance = fr.compare_histograms(histogram, np.loadtxt("histograms/"+str(ids[0][0])+".txt"))
                     minindex = 0
                     for index in range(size-1):
-                        studentNo = ids[index+1]
+                        studentNo = ids[index+1][0]
                         data = np.loadtxt("histograms/"+str(studentNo)+".txt")
                         distance = fr.compare_histograms(histogram, data)
                         if distance < mindistance:
@@ -74,10 +73,11 @@ class camera(QDialog):
                     else:
                         studentId = ids[minindex][0]
                         print(studentId)
-                        name = self.db.studentById(studentId)[0]
+                        student = self.db.getStudentByStudentNo(studentId)[0]
+                        name = student[1]
                         reply = QMessageBox.question(self, 'A face is detected', "This face is recognized as " + name + " do you confirm?",QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                         if reply == QMessageBox.Yes:
-                            self.db.insertSessionStudent(self.db.getLastSessionId(), studentId)
+                            self.db.insertSessionStudent(self.db.getLastSessionId()[0], student[0])
                         else:
                             print("not confirmed")
                     self.capture = False
