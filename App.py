@@ -13,6 +13,7 @@ import facerecognition as fr
 def get_gray_scale(frame):
     return cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
+
 """
     The main class that communicates with UI and includes helper functions in it.
 """
@@ -38,8 +39,8 @@ class App(QMainWindow):
         self.buttonOpenCamera.clicked.connect(self.onclicked)
         self.buttonCapture.clicked.connect(self.captureClicked)
 
-        self.pBOpenCourseAddDialog.clicked.connect(self.addCourseClicked) # to open a dialog for entering a new course
-        self.buttonDbSave.clicked.connect(self.insertStudent) # to save the student into db
+        self.pBOpenCourseAddDialog.clicked.connect(self.addCourseClicked)  # to open a dialog for entering a new course
+        self.buttonDbSave.clicked.connect(self.insertStudent)  # to save the student into db
 
         # if the current tab changes it's triggers the function, and the function fills the UI
         self.tabWidget.currentChanged.connect(self.getDataForList)
@@ -67,7 +68,6 @@ class App(QMainWindow):
         self.imgLabel.clear()
         self.cap.release()
         cv2.destroyAllWindows()
-
 
     # for showing the dialog that enables the course insertion
     def addCourseClicked(self):
@@ -194,36 +194,37 @@ class App(QMainWindow):
         self.listWidget.clear()
         self.listWidget.addItems(self.db.getCourses())
 
-     # function that runs when the camera is open
+    # function that runs when the camera is open
     def onclicked(self):
         print("on clicked")
         self.cap = cv2.VideoCapture(-1)
         while self.cap.isOpened():
             # the read function returns two variables; one for availability and second the frame itself
             ret, frame = self.cap.read()
-            #if return value is okay
+            # if return value is okay
             if ret:
                 # bound of the faces and new cropped image is assigned
                 bound, croppedFrame = fr.detect_faces(frame)
                 # to see in the UI a rectangle has drawn on image
                 self.displayImage(cv2.rectangle(frame, (bound[0], bound[1]), (bound[0] + bound[2], bound[1] + bound[3]),
                                                 (0, 255, 0), 2))
-                if self.capture: #
+                if self.capture:  #
                     print("capture is clicked")
                     self.imageCountLabel.setText(
                         "Please take " + str(3 - self.captureCount) + " images for finding the optimum image")
                     if self.captureCount < 4:
                         self.captureCount += 1
                         bound, capturedFace = fr.detect_faces(frame)
-                        self.frameList.append(capturedFace) # captured face is added to the list.
+                        self.frameList.append(capturedFace)  # captured face is added to the list.
                         self.capture = False
 
                         if self.captureCount == 4:
                             print(self.frameList)
                             self.captureCount = 0
-                            optimizedPhoto = fr.optimize(self.frameList) # finds the optimized image
-                            lbp = fr.get_lbp(optimizedPhoto) # implements the Local Binary Pattern Histograms algorithm to image
-                            histogram = fr.cal_histogram(lbp) # histogram that is calculated with the help of LBPH
+                            optimizedPhoto = fr.optimize(self.frameList)  # finds the optimized image
+                            lbp = fr.get_lbp(
+                                optimizedPhoto)  # implements the Local Binary Pattern Histograms algorithm to image
+                            histogram = fr.cal_histogram(lbp)  # histogram that is calculated with the help of LBPH
                             try:
                                 # it's creates a file onto images folder with uniquely selected schoolNumber
                                 os.mkdir(f"./images/{self.schoolNumberLineEdit.text()}")
@@ -234,12 +235,12 @@ class App(QMainWindow):
                                 pass
                             # imagePath is created
                             imagePath = f"./images/{self.schoolNumberLineEdit.text()}/{self.nameLineEdit.text()}.png"
-                            cv2.imwrite(imagePath, optimizedPhoto) # optimized image will be saved
-                            self.imagePathLineEdit.setText(imagePath) # to see the path
+                            cv2.imwrite(imagePath, optimizedPhoto)  # optimized image will be saved
+                            self.imagePathLineEdit.setText(imagePath)  # to see the path
                             print("optimize edilmiş foto kaydedildi")
-                            self.frameList.clear() # clear the list
+                            self.frameList.clear()  # clear the list
             else:
-                print("not found") # if any frame could not be catched
+                print("not found")  # if any frame could not be catched
         self.cap.release()
         cv2.destroyAllWindows()
 

@@ -5,7 +5,7 @@ from datetime import datetime
 class database():
     def __init__(self):
         super(database, self).__init__()
-        self.dbName = 'database.db'
+        self.dbName = 'project.db'
         # a sql connection object
         self.connection = sqlite.connect(self.dbName)
 
