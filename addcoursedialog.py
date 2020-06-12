@@ -11,6 +11,7 @@ class Ui_Dialog(QDialog):
         loadUi("ui/dialog.ui", self)
         self.db = database()
 
+    # it takes the courseName, teacherName and stores into db
     def accept(self):
         msgBox = QMessageBox()
         courseName = self.courseNameLineEdit.text()
@@ -26,26 +27,3 @@ class Ui_Dialog(QDialog):
             msgBox.setWindowTitle("Warning")
         msgBox.exec()
 
-        '''
-        msgBox = QMessageBox()
-        courseName = self.lineEdit.text()
-
-        if courseName is not "":
-            path = os.getcwd()+os.sep+"courses/"+courseName
-
-            if not os.path.exists(path):
-                os.makedirs(path)
-                msgBox.setIcon(QMessageBox.Information)
-                msgBox.setText("The folder is successfully created")
-                msgBox.setWindowTitle("Success")
-            else:
-                msgBox.setIcon(QMessageBox.Critical)
-                msgBox.setText("The folder is already exists")
-                msgBox.setWindowTitle("Warning")
-            msgBox.exec()
-        else:
-            msgBox.setIcon(QMessageBox.Critical)
-            msgBox.setText("Please enter proper filename")
-            msgBox.setWindowTitle("Warning")
-            msgBox.exec()
-        '''

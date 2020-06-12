@@ -74,7 +74,7 @@ class camera(QDialog):
                     else:
                         studentId = ids[minindex][0]
                         print(studentId)
-                        name = self.db.studentById(studentId)[0][1]
+                        name = self.db.studentById(studentId)[0]
                         reply = QMessageBox.question(self, 'A face is detected', "This face is recognized as " + name + " do you confirm?",QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                         if reply == QMessageBox.Yes:
                             self.db.insertSessionStudent(self.db.getLastSessionId(), studentId)

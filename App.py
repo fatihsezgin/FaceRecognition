@@ -28,6 +28,8 @@ class App(QMainWindow):
         self.capture = False
         # instance of database connection
         self.db = database()
+        # creates the tables if they not exists
+        self.db.createTableQueries()
         # capture count for keep record of how many images needed to find and store the optimized image
         self.captureCount = 0
 
@@ -184,45 +186,52 @@ class App(QMainWindow):
         self.listWidget.clear()
         self.listWidget.addItems(self.db.getCourses())
 
-     # function that runs when the camere is open
+     # function that runs when the camera is open
     def onclicked(self):
         print("on clicked")
         self.cap = cv2.VideoCapture(-1)
         while self.cap.isOpened():
+            # the read function returns two variables; one for availability and second the frame itself
             ret, frame = self.cap.read()
+            #if return value is okay
             if ret:
+                # bound of the faces and new cropped image is assigned
                 bound, croppedFrame = fr.detect_faces(frame)
+                # to see in the UI a rectangle has drawn on image
                 self.displayImage(cv2.rectangle(frame, (bound[0], bound[1]), (bound[0] + bound[2], bound[1] + bound[3]),
                                                 (0, 255, 0), 2))
-                if self.capture:
+                if self.capture: #
                     print("capture is clicked")
                     self.imageCountLabel.setText(
                         "Please take " + str(3 - self.captureCount) + " images for finding the optimum image")
                     if self.captureCount < 4:
                         self.captureCount += 1
                         bound, capturedFace = fr.detect_faces(frame)
-                        self.frameList.append(capturedFace)
+                        self.frameList.append(capturedFace) # captured face is added to the list.
                         self.capture = False
 
                         if self.captureCount == 4:
                             print(self.frameList)
                             self.captureCount = 0
-                            optimizedPhoto = fr.optimize(self.frameList)
-                            lbp = fr.get_lbp(optimizedPhoto)
-                            histogram = fr.cal_histogram(lbp)
+                            optimizedPhoto = fr.optimize(self.frameList) # finds the optimized image
+                            lbp = fr.get_lbp(optimizedPhoto) # implements the Local Binary Pattern Histograms algorithm to image
+                            histogram = fr.cal_histogram(lbp) # histogram that is calculated with the help of LBPH
                             try:
+                                # it's creates a file onto images folder with uniquely selected schoolNumber
                                 os.mkdir(f"./images/{self.schoolNumberLineEdit.text()}")
+                                # the histogram values is also stored into histograms folder
                                 with open(f"./histograms/{self.schoolNumberLineEdit.text()}.txt", 'w') as file_handler:
                                     file_handler.write("\n".join(str(item) for item in histogram))
                             except FileExistsError:
                                 pass
+                            # imagePath is created
                             imagePath = f"./images/{self.schoolNumberLineEdit.text()}/{self.nameLineEdit.text()}.png"
-                            cv2.imwrite(imagePath, optimizedPhoto)
-                            self.imagePathLineEdit.setText(imagePath)
+                            cv2.imwrite(imagePath, optimizedPhoto) # optimized image will be saved
+                            self.imagePathLineEdit.setText(imagePath) # to see the path
                             print("optimize edilmiş foto kaydedildi")
-                            self.frameList.clear()
+                            self.frameList.clear() # clear the list
             else:
-                print("not found")
+                print("not found") # if any frame could not be catched
         self.cap.release()
         cv2.destroyAllWindows()
 

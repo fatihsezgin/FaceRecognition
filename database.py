@@ -2,15 +2,38 @@ import sqlite3 as sqlite
 from datetime import datetime
 
 
-# db = sqlite.connect('database.db') #GNU/Linux
-
 class database():
     def __init__(self):
         super(database, self).__init__()
-        # dbpath = '/home/fatih/Desktop/Python/SoftwareDesingApplicationsFinal/FaceRecognition/database.db'
         self.dbName = 'database.db'
+        # a sql connection object
         self.connection = sqlite.connect(self.dbName)
 
+    def create_table(self, create_table_sql):
+        """ create a table from the create_table_sql statement
+        :param conn: Connection object
+        :param create_table_sql: a CREATE TABLE statement
+        :return:
+        """
+        with sqlite.connect(self.dbName) as db:
+            try:
+                c = db.cursor()
+                c.execute(create_table_sql)
+            except sqlite.Error as e:
+                print(e)
+
+    def createTableQueries(self):
+        createTableQueries = [
+            """ CREATE TABLE IF NOT EXISTS "students" ( `studentID` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT, `surname` TEXT, `schoolnumber` TEXT, `faculty` TEXT, `department` TEXT, `imgPath` TEXT ); """,
+            """CREATE TABLE IF NOT EXISTS "courses" ( `id` INTEGER PRIMARY KEY AUTOINCREMENT, `coursename` TEXT, `teacher` TEXT )""",
+            """CREATE TABLE IF NOT EXISTS "course_student" ( `id` INTEGER PRIMARY KEY AUTOINCREMENT, `courseid` INTEGER, `studentid` INTEGER, FOREIGN KEY(`courseid`) REFERENCES courses(`id`), FOREIGN KEY(studentid) REFERENCES students(studentID) )""",
+            """CREATE TABLE IF NOT EXISTS `session` ( `id` INTEGER PRIMARY KEY AUTOINCREMENT, `courseid` INTEGER, `createdAt` TEXT, FOREIGN KEY(`courseid`) REFERENCES courses(`id`))""",
+            """CREATE TABLE IF NOT EXISTS `session_student` ( `id` INTEGER PRIMARY KEY AUTOINCREMENT, `sessionid` INTEGER, `studentid` INTEGER , FOREIGN KEY(`sessionid`) REFERENCES session(`id`), FOREIGN KEY(studentid) REFERENCES students(studentID) )"""]
+
+        for i in range(len(createTableQueries)):
+            self.create_table(createTableQueries[i])
+
+    # Inserts a student into students table
     def insertStudent(self, studentName, studentSurname, studentNumber, faculty, department, imgPath):
         with sqlite.connect(self.dbName) as db:
             list = (studentName, studentSurname, studentNumber, faculty, department, imgPath)
@@ -20,6 +43,7 @@ class database():
             self.connection.commit()
             return result
 
+    # Inserts a course into courses table
     def insertCourse(self, courseName, teacherName):
         with sqlite.connect(self.dbName) as db:
             list = (courseName, teacherName)
@@ -29,11 +53,13 @@ class database():
             self.connection.commit()
             return result
 
+    # Returns a student within given id
     def studentById(self, studentId):
         with sqlite.connect(self.dbName) as db:
             cursor = db.cursor()
-            return cursor.execute("Select * from students where studentID=?", (studentId,)).fetchall()
+            return cursor.execute("Select * from students where studentID=?", (studentId,)).fetchone()
 
+    # returns a list of courses that is recorded
     def getCourses(self):
         with sqlite.connect(self.dbName) as db:
             cursor = db.cursor()
@@ -44,18 +70,21 @@ class database():
                 courseList.append(cur[i][1])
             return courseList
 
+    # returns the course id within course name
     def getCourseId(self, courseName):
         with sqlite.connect(self.dbName) as db:
             cursor = db.cursor()
             cursor.execute("Select * from courses where coursename =?", (courseName,))
-            cur = cursor.fetchall()
-            return cur[0][0]
+            cur = cursor.fetchone()
+            return cur[0]
 
+    # inserts a student into course
     def insertCourseStudent(self, courseId, studentId):
         with sqlite.connect(self.dbName) as db:
             cursor = db.cursor()
             return cursor.execute("INSERT INTO course_student VALUES (null,?,?)", (courseId, studentId,))
 
+    # returns the students for the given course id
     def getStudentsForCourse(self, courseId):
         with sqlite.connect(self.dbName) as db:
             cursor = db.cursor()
@@ -63,6 +92,7 @@ class database():
                                   "students.studentID = course_student.studentid where course_student.courseid = ?",
                                   (courseId,)).fetchall()
 
+    # returns the column names for student
     def getStudentsTableHeaders(self):
         with sqlite.connect(self.dbName) as db:
             cursor = db.cursor()
@@ -73,11 +103,13 @@ class database():
                 headers.append(cur[i][1])
             return headers
 
+    # selects the all records in student table
     def getAllStudents(self):
         with sqlite.connect(self.dbName) as db:
             cursor = db.cursor()
             return cursor.execute("Select * from students").fetchall()
 
+    # returns school number of attendees that given course id
     def getStudentIdsForCourse(self, courseId):
         with sqlite.connect(self.dbName) as db:
             cursor = db.cursor()
@@ -85,6 +117,7 @@ class database():
                                   "students.studentID = course_student.studentid where course_student.courseid = ?",
                                   (courseId,)).fetchall()
 
+    # create new session record with courseid
     def createSession(self, courseId):
         with sqlite.connect(self.dbName) as db:
             cursor = db.cursor()
@@ -92,11 +125,13 @@ class database():
             return cursor.execute("Insert Into session values (null,?,?)",
                                   (courseId, now.strftime("%d/%m/%Y %H:%M:%S"),))
 
+    # returns the last inserted id in session table
     def getLastSessionId(self):
         with sqlite.connect(self.dbName) as db:
             cursor = db.cursor()
             return cursor.execute("Select MAX(id) From session").fetchone()
 
+    # inserts a student into session
     def insertSessionStudent(self, sessionId, studentId):
         with sqlite.connect(self.dbName) as db:
             cursor = db.cursor()
