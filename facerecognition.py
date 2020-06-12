@@ -8,7 +8,7 @@ import cv2
     1. Input image should be converted to gray scale
     2. Faces should be detected in gray scaled image
     3. Crop the face from the image
-    4. Local Binary Pattern algorithm shoul be applied
+    4. Local Binary Pattern algorithm should be applied
     5. Divide face into equal size of regions (in this project 8x8=64 regions used)
     6. Calculate histogram of each region
     7. Concatenate histograms of each region
